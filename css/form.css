@@ -1,0 +1,269 @@
+/* ==========================================================================
+   Registration form — استمارة التسجيل
+   No data is stored or transmitted; the form only composes a WhatsApp message.
+   ========================================================================== */
+
+.registration { background: var(--bg); }
+
+.form-shell {
+  max-width: 720px;
+  margin-inline: auto;
+  padding: var(--sp-5);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-md);
+}
+
+@media (min-width: 620px) {
+  .form-shell { padding: var(--sp-6); }
+}
+
+.form-grid {
+  display: grid;
+  gap: var(--sp-4);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 620px) {
+  .form-grid { grid-template-columns: repeat(2, 1fr); }
+  .field--wide { grid-column: 1 / -1; }
+}
+
+/* --------------------------------------------------------------------------
+   Field
+   -------------------------------------------------------------------------- */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.field__label {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-snug);
+  color: var(--navy-700);
+}
+
+.field__num {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  flex: none;
+  border-radius: var(--r-full);
+  background: var(--navy-100);
+  color: var(--navy-700);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-black);
+}
+
+.field__optional {
+  font-family: var(--font-body);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--gold-600);
+}
+
+.field__control {
+  width: 100%;
+  min-height: var(--tap);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--cream-50);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  font-size: var(--fs-base);
+  line-height: var(--lh-snug);
+  color: var(--text);
+  transition:
+    border-color var(--dur) var(--ease),
+    background-color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
+}
+
+.field__control::placeholder { color: var(--muted-light); }
+
+.field__control:hover { border-color: rgba(198, 154, 59, .5); }
+
+.field__control:focus {
+  outline: none;
+  background: var(--white);
+  border-color: var(--gold-500);
+  box-shadow: 0 0 0 4px rgba(198, 154, 59, .18);
+}
+
+textarea.field__control {
+  min-height: 96px;
+  resize: vertical;
+}
+
+select.field__control {
+  appearance: none;
+  cursor: pointer;
+  /* السهم على اليسار لأن اتجاه الصفحة من اليمين لليسار */
+  background-image: var(--select-caret);
+  background-position: left var(--sp-4) center;
+  background-size: 12px 8px;
+  background-repeat: no-repeat;
+  padding-inline-start: var(--sp-4);
+  padding-inline-end: var(--sp-7);
+}
+
+/* phone reads left-to-right even inside an RTL page */
+.field__control--tel {
+  direction: ltr;
+  text-align: right;
+}
+
+/* --------------------------------------------------------------------------
+   Validation + counter
+   -------------------------------------------------------------------------- */
+
+.field__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--sp-3);
+  min-height: 18px;
+  font-size: var(--fs-xs);
+}
+
+.field__error {
+  display: none;
+  align-items: center;
+  gap: var(--sp-1);
+  color: var(--maroon-600);
+  font-weight: var(--fw-medium);
+}
+
+.field__error svg { width: 14px; height: 14px; flex: none; }
+
+.field__count {
+  margin-inline-start: auto;
+  color: var(--muted-light);
+  font-variant-numeric: tabular-nums;
+}
+
+.field.is-invalid .field__control {
+  border-color: var(--maroon-600);
+  background: rgba(140, 43, 43, .04);
+}
+
+.field.is-invalid .field__error { display: inline-flex; }
+
+/* --------------------------------------------------------------------------
+   Reassurance + privacy
+   -------------------------------------------------------------------------- */
+
+.form-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  margin-bottom: var(--sp-5);
+  background: rgba(198, 154, 59, .10);
+  border: 1px solid rgba(198, 154, 59, .30);
+  border-radius: var(--r-sm);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-snug);
+  color: var(--text-soft);
+}
+
+.form-note svg { width: 20px; height: 20px; flex: none; margin-top: 2px; color: var(--gold-600); }
+.form-note p { max-width: none; }
+
+.form-privacy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
+  font-size: var(--fs-xs);
+  color: var(--text-soft);
+  text-align: center;
+}
+
+.form-privacy svg { width: 16px; height: 16px; flex: none; color: var(--whatsapp); }
+.form-privacy p { max-width: none; }
+
+.form-actions { margin-top: var(--sp-5); }
+
+/* --------------------------------------------------------------------------
+   Success panel — shown after the WhatsApp message is composed
+   -------------------------------------------------------------------------- */
+
+.form-done {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-4);
+  text-align: center;
+}
+
+.form-done.is-open { display: flex; }
+
+.form-done__icon {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--r-full);
+  background: rgba(37, 211, 102, .14);
+  color: var(--whatsapp);
+}
+
+.form-done__icon svg { width: 32px; height: 32px; }
+
+.form-done h3 { color: var(--navy-700); }
+
+.form-done p { color: var(--text-soft); font-size: var(--fs-sm); }
+
+.form-done__preview {
+  width: 100%;
+  max-height: 200px;
+  overflow: auto;
+  padding: var(--sp-4);
+  background: var(--cream-50);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-snug);
+  text-align: start;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.form-done__warn {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  width: 100%;
+  padding: var(--sp-3) var(--sp-4);
+  background: rgba(140, 43, 43, .07);
+  border: 1px solid rgba(140, 43, 43, .28);
+  border-radius: var(--r-sm);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-snug);
+  color: var(--maroon-600);
+  text-align: start;
+  max-width: none;
+}
+
+.form-done__warn[hidden] { display: none; }
+.form-done__warn svg { width: 16px; height: 16px; flex: none; margin-top: 2px; }
+
+.form-done__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--sp-3);
+  width: 100%;
+}
+
+.copy-ok { color: var(--whatsapp); font-weight: var(--fw-semibold); }
