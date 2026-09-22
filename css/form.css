@@ -89,13 +89,13 @@
 
 .field__control::placeholder { color: var(--muted-light); }
 
-.field__control:hover { border-color: rgba(198, 154, 59, .5); }
+.field__control:hover { border-color: var(--gold-tint-hover); }
 
 .field__control:focus {
   outline: none;
   background: var(--white);
   border-color: var(--gold-500);
-  box-shadow: 0 0 0 4px rgba(198, 154, 59, .18);
+  box-shadow: var(--gold-focus-ring);
 }
 
 textarea.field__control {
@@ -152,7 +152,7 @@ select.field__control {
 
 .field.is-invalid .field__control {
   border-color: var(--maroon-600);
-  background: rgba(140, 43, 43, .04);
+  background: var(--maroon-tint-field);
 }
 
 .field.is-invalid .field__error { display: inline-flex; }
@@ -167,8 +167,8 @@ select.field__control {
   gap: var(--sp-3);
   padding: var(--sp-4);
   margin-bottom: var(--sp-5);
-  background: rgba(198, 154, 59, .10);
-  border: 1px solid rgba(198, 154, 59, .30);
+  background: var(--gold-tint-wash);
+  border: 1px solid var(--gold-tint-border);
   border-radius: var(--r-sm);
   font-size: var(--fs-sm);
   line-height: var(--lh-snug);
@@ -214,7 +214,7 @@ select.field__control {
   width: 64px;
   height: 64px;
   border-radius: var(--r-full);
-  background: rgba(37, 211, 102, .14);
+  background: var(--whatsapp-tint);
   color: var(--whatsapp);
 }
 
@@ -245,8 +245,8 @@ select.field__control {
   gap: var(--sp-2);
   width: 100%;
   padding: var(--sp-3) var(--sp-4);
-  background: rgba(140, 43, 43, .07);
-  border: 1px solid rgba(140, 43, 43, .28);
+  background: var(--maroon-tint-wash);
+  border: 1px solid var(--maroon-tint-border);
   border-radius: var(--r-sm);
   font-size: var(--fs-xs);
   line-height: var(--lh-snug);
