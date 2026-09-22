@@ -11,3 +11,6 @@ desktop.ini
 # ملفات مؤقتة
 *.log
 *.tmp
+
+# إعدادات محلية خاصة بجهازك
+.claude/settings.local.json
