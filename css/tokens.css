@@ -1,5 +1,5 @@
 /* ==========================================================================
-   مركز النخبة — Design tokens
+   مركز النخبة: Design tokens
    The ONLY file in this project allowed to contain raw values.
    Every colour, font, size, space, radius, shadow and duration lives here.
    ========================================================================== */
@@ -8,18 +8,18 @@
   /* ---------- Colour ---------- */
   --navy-900: #0E1A3C;
   --navy-800: #122250;
-  --navy-700: #16265C;   /* primary brand navy — taken from the logo */
+  --navy-700: #16265C;   /* primary brand navy: taken from the logo */
   --navy-600: #1D2F6E;
   --navy-500: #24397F;
   --navy-100: #E6E9F2;
 
   --gold-600: #A87F26;
-  --gold-500: #C69A3B;   /* brand gold — taken from the logo */
+  --gold-500: #C69A3B;   /* brand gold: taken from the logo */
   --gold-400: #D4AE5C;
   --gold-300: #E3C173;
   --gold-100: #F5E9CE;
 
-  --maroon-600: #8C2B2B; /* from the books in the logo — used sparingly */
+  --maroon-600: #8C2B2B; /* from the books in the logo: used sparingly */
 
   --cream-50: #F7F4EE;   /* page surface */
   --cream-100: #EFEAE0;
@@ -65,6 +65,9 @@
   --whatsapp-tint: rgba(37, 211, 102, .14);
 
   --gold-glow: rgba(198, 154, 59, .22);
+  --announce-bg: linear-gradient(100deg, #C69A3B, #D9B45C 55%, #C69A3B);
+  --announce-ink: #17203F;
+  --announce-dot: #17203F;
   --header-bg: rgba(247, 244, 238, .82);
   --header-bg-stuck: rgba(247, 244, 238, .94);
 
@@ -72,14 +75,14 @@
   --font-display: "Almarai", system-ui, sans-serif;
   --font-body: "IBM Plex Sans Arabic", system-ui, sans-serif;
 
-  --fs-xs:   0.8125rem;                              /* 13px */
-  --fs-sm:   0.9375rem;                              /* 15px */
-  --fs-base: 1rem;                                   /* 16px — never smaller */
-  --fs-md:   clamp(1.0625rem, 1rem + .35vw, 1.1875rem);
-  --fs-lg:   clamp(1.1875rem, 1.05rem + .7vw,  1.375rem);
-  --fs-xl:   clamp(1.4375rem, 1.2rem + 1.1vw,  1.875rem);
-  --fs-2xl:  clamp(1.75rem,  1.35rem + 1.9vw,  2.625rem);
-  --fs-3xl:  clamp(2.125rem, 1.5rem + 3vw,     3.75rem);
+  --fs-xs:  0.8125rem;                              /* 13px */
+  --fs-sm:  0.9375rem;                              /* 15px */
+  --fs-base: 1rem;                                   /* 16px: never smaller */
+  --fs-md:  clamp(1.0625rem, 1rem + .35vw, 1.1875rem);
+  --fs-lg:  clamp(1.1875rem, 1.05rem + .7vw,  1.375rem);
+  --fs-xl:  clamp(1.4375rem, 1.2rem + 1.1vw,  1.875rem);
+  --fs-2xl: clamp(1.75rem,  1.35rem + 1.9vw,  2.625rem);
+  --fs-3xl: clamp(2.125rem, 1.5rem + 3vw,     3.75rem);
 
   --lh-tight: 1.28;
   --lh-snug: 1.5;
@@ -118,7 +121,7 @@
   --shadow-md: 0 4px 12px rgba(14, 26, 60, .08), 0 12px 32px rgba(14, 26, 60, .08);
   --shadow-lg: 0 8px 24px rgba(14, 26, 60, .10), 0 24px 64px rgba(14, 26, 60, .12);
 
-  /* ظلال الأزرار محايدة اللون عمداً — الظل الملوّن يجعل الزر يبدو كمصباح مضيء */
+  /* ظلال الأزرار محايدة اللون عمداً: الظل الملوّن يجعل الزر يبدو كمصباح مضيء */
   --shadow-btn: 0 1px 2px rgba(14, 26, 60, .10), 0 2px 6px rgba(14, 26, 60, .10);
   --shadow-btn-hover: 0 4px 12px rgba(14, 26, 60, .16);
 
@@ -136,11 +139,12 @@
   --z-header: 50;
   --z-mobilebar: 60;
 
-  /* سهم القائمة المنسدلة — يبقى هنا لأنه يحمل قيمة لون */
+  /* سهم القائمة المنسدلة: يبقى هنا لأنه يحمل قيمة لون */
   --select-caret: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5l5-5' fill='none' stroke='%2324397F' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 
   /* ---------- Component ---------- */
   --header-h: 64px;
+  --announce-h: 40px;
   --mobilebar-h: 76px;   /* الارتفاع الفعلي للشريط 73px + هامش أمان */
   --tap: 48px;
 }

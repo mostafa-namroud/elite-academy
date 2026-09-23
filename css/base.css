@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Base — reset, RTL defaults, typography, scroll-reveal primitives
+   Base: reset, RTL defaults, typography, scroll-reveal primitives
    ========================================================================== */
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -89,7 +89,7 @@ body { font-variant-numeric: lining-nums; }
 }
 
 /* --------------------------------------------------------------------------
-   Scroll reveal — driven by js/reveal.js, one-time per element
+   Scroll reveal: driven by js/reveal.js, one-time per element
    -------------------------------------------------------------------------- */
 
 [data-reveal] {
@@ -110,7 +110,7 @@ body { font-variant-numeric: lining-nums; }
 }
 
 /* --------------------------------------------------------------------------
-   Respect the user's motion preference — nothing moves, nothing is hidden
+   Respect the user's motion preference: nothing moves, nothing is hidden
    -------------------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {

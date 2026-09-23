@@ -1,15 +1,15 @@
 /* ==========================================================================
-   Sections — header, hero, why-us, mobile action bar
+   Sections: header, hero, why-us, mobile action bar
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   1. Header — light surface, so the navy logo stays legible
+   1. Header: light surface, so the navy logo stays legible
    -------------------------------------------------------------------------- */
 
 .header {
-  position: fixed;
+  /* sticky وليس fixed: يسمح لشريط العرض بالانزلاق للأعلى ثم يثبت الهيدر */
+  position: sticky;
   inset-block-start: 0;
-  inset-inline: 0;
   z-index: var(--z-header);
   height: var(--header-h);
   background: var(--header-bg);
@@ -38,7 +38,7 @@
 .header__cta { display: none; }
 
 @media (min-width: 768px) {
-  :root { --header-h: 76px; }
+ :root { --header-h: 76px; }
   .header__cta { display: inline-flex; }
   .logo__mark { height: 48px; }
 }
@@ -51,7 +51,7 @@
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  padding-block: calc(var(--header-h) + var(--sp-8)) var(--sp-9);
+  padding-block: var(--sp-8) var(--sp-9);
   background:
     radial-gradient(120% 80% at 50% 0%, var(--navy-600) 0%, transparent 60%),
     linear-gradient(170deg, var(--navy-800), var(--navy-900) 70%);
@@ -59,7 +59,7 @@
   text-align: center;
 }
 
-/* slow-drifting gold glow — the only continuous animation on the page */
+/* slow-drifting gold glow: the only continuous animation on the page */
 .hero::before {
   content: "";
   position: absolute;
@@ -172,7 +172,7 @@
   transform: translateY(20px);
   animation: heroIn var(--dur-slower) var(--ease-out) forwards;
 }
-.hero [data-hero="1"] { animation-delay:  80ms; transform: translateY(12px) scale(.94); }
+.hero [data-hero="1"] { animation-delay: 80ms; transform: translateY(12px) scale(.94); }
 .hero [data-hero="2"] { animation-delay: 260ms; }
 .hero [data-hero="3"] { animation-delay: 420ms; }
 .hero [data-hero="4"] { animation-delay: 560ms; }
@@ -213,7 +213,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   4. Fixed mobile action bar — the phone number is always one tap away
+   4. Fixed mobile action bar: the phone number is always one tap away
    -------------------------------------------------------------------------- */
 
 .mobilebar {
@@ -237,7 +237,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   5. Grades — الصفوف والمراحل
+   5. Grades: الصفوف والمراحل
    -------------------------------------------------------------------------- */
 
 .grades { background: var(--bg-elevated); }
@@ -301,7 +301,7 @@
 .grade__hint svg { width: 14px; height: 14px; }
 
 /* --------------------------------------------------------------------------
-   6. Offers — dark surface
+   6. Offers: dark surface
    -------------------------------------------------------------------------- */
 
 .offers {
@@ -427,7 +427,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   8. Contact — الموقع والتواصل
+   8. Contact: الموقع والتواصل
    -------------------------------------------------------------------------- */
 
 .contact { background: var(--bg-elevated); }
@@ -491,7 +491,7 @@
   padding-top: var(--sp-2);
 }
 
-/* على الهاتف تأخذ أزرار التواصل الحجم الكامل — هي الإجراء الأساسي هنا */
+/* على الهاتف تأخذ أزرار التواصل الحجم الكامل: هي الإجراء الأساسي هنا */
 @media (max-width: 619px) {
   .contact__actions .btn {
     flex: 1 1 auto;
@@ -584,3 +584,50 @@
   font-size: var(--fs-xs);
   color: var(--muted-light);
 }
+
+/* --------------------------------------------------------------------------
+   0. Announcement bar: the first thing on the page, above the header.
+   The header is sticky (not fixed) so this scrolls away and the header pins.
+   -------------------------------------------------------------------------- */
+
+.announce {
+  position: relative;
+  z-index: var(--z-header);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  min-height: var(--announce-h);
+  padding: var(--sp-2) var(--gutter);
+  background: var(--announce-bg);
+  color: var(--announce-ink);
+  font-family: var(--font-display);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  line-height: 1.4;
+  text-align: center;
+  transition: filter var(--dur) var(--ease);
+}
+
+.announce:hover { filter: brightness(1.06); }
+
+.announce__dot {
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: var(--r-full);
+  background: var(--announce-dot);
+  opacity: .6;
+}
+
+/* الأبعاد صريحة لأن base.css يضبط height: auto لكل svg */
+.announce__arrow {
+  width: 15px;
+  height: 15px;
+  flex: none;
+  transition: transform var(--dur) var(--ease);
+}
+
+.announce:hover .announce__arrow { transform: translateX(-3px); }
+
+.announce[hidden] { display: none; }

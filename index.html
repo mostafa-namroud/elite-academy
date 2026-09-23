@@ -3,17 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>مركز النخبة | Elite Academy — دروس تقوية في مخيم البداوي، طرابلس</title>
-<meta name="description" content="مركز النخبة التعليمي في مخيم البداوي — طرابلس. دروس تقوية ومتابعة لطلاب الصفوف من الخامس حتى البكالوريا، بشرح مبسّط ومتابعة مستمرة وتحضير للامتحانات.">
+<title>مركز النخبة | Elite Academy · دروس تقوية في مخيم البداوي، طرابلس</title>
+<meta name="description" content="مركز النخبة التعليمي في مخيم البداوي، طرابلس. دروس تقوية ومتابعة لطلاب الصفوف من الخامس حتى البكالوريا، بشرح مبسّط ومتابعة مستمرة وتحضير للامتحانات.">
 <meta name="theme-color" content="#16265C">
 
 <link rel="icon" href="assets/favicon.png" type="image/png">
-<link rel="apple-touch-icon" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 
 <meta property="og:type" content="website">
 <meta property="og:locale" content="ar_AR">
 <meta property="og:title" content="مركز النخبة | Elite Academy">
-<meta property="og:description" content="طريقك نحو التفوق يبدأ من هنا — دروس تقوية من الصف الخامس حتى البكالوريا في مخيم البداوي، طرابلس.">
+<meta property="og:description" content="طريقك نحو التفوق يبدأ من هنا. دروس تقوية من الصف الخامس حتى البكالوريا في مخيم البداوي، طرابلس.">
 <meta property="og:image" content="assets/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -33,13 +33,23 @@
 <body>
 
 <!-- ======================================================================
+     SECTION: شريط العرض
+     يظهر أول شيء في الصفحة. لإخفائه أضف كلمة hidden إلى الوسم التالي.
+     ====================================================================== -->
+<a class="announce" href="#offers">
+  <span class="announce__dot" aria-hidden="true"></span>
+  <span class="announce__text">الدورة المجانية للبريفيه · احجز مكانك الآن</span>
+  <svg class="announce__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+</a>
+
+<!-- ======================================================================
      SECTION: الهيدر
      ====================================================================== -->
 <header class="header">
   <div class="container header__inner">
 
-    <a href="#" class="logo" aria-label="مركز النخبة — الصفحة الرئيسية">
-      <img class="logo__mark" src="assets/logo-mark.png" alt="" width="715" height="522">
+    <a href="#" class="logo" aria-label="مركز النخبة، الصفحة الرئيسية">
+      <img class="logo__mark" src="assets/logo-mark.webp" alt="" width="113" height="96" fetchpriority="high" decoding="async">
       <span class="logo__text">
         <span class="logo__name">مركز النخبة</span>
         <span class="logo__tag">ELITE ACADEMY</span>
@@ -63,7 +73,7 @@
   <div class="container hero__inner">
 
     <div class="logo-plate" data-hero="1">
-      <img src="assets/logo.png" alt="شعار مركز النخبة" width="727" height="813">
+      <img src="assets/logo.webp" alt="شعار مركز النخبة" width="234" height="264" fetchpriority="high" decoding="async">
     </div>
 
     <h1 data-hero="2">
@@ -71,7 +81,7 @@
     </h1>
 
     <p class="hero__lead" data-hero="3">
-      مركز النخبة التعليمي في مخيم البداوي — دروس تقوية ومتابعة مستمرة
+      مركز النخبة التعليمي في مخيم البداوي. دروس تقوية ومتابعة مستمرة
       لطلاب الصفوف من الخامس حتى البكالوريا.
     </p>
 
@@ -176,7 +186,7 @@
 
 <!-- ======================================================================
      SECTION: الصفوف والمراحل
-     كل بطاقة تحمل data-grade — يجب أن تطابق قيمتها قائمة grades في js/content.js
+     كل بطاقة تحمل data-grade: يجب أن تطابق قيمتها قائمة grades في js/content.js
      ====================================================================== -->
 <section class="section grades" id="grades">
   <div class="container">
@@ -216,7 +226,7 @@
       </button>
 
       <button type="button" class="grade" data-grade="صف 9 (البريفيه)" data-reveal="scale" data-reveal-step="3">
-        <span class="grade__label">صف 9 — البريفيه</span>
+        <span class="grade__label">صف 9 (البريفيه)</span>
         <span class="grade__hint">
           سجّل
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
@@ -232,7 +242,7 @@
       </button>
 
       <button type="button" class="grade" data-grade="باك 1 - علمي" data-reveal="scale" data-reveal-step="5">
-        <span class="grade__label">باك 1 — علمي</span>
+        <span class="grade__label">باك 1 - علمي</span>
         <span class="grade__hint">
           سجّل
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
@@ -240,7 +250,7 @@
       </button>
 
       <button type="button" class="grade" data-grade="باك 1 - أدبي" data-reveal="scale" data-reveal-step="6">
-        <span class="grade__label">باك 1 — أدبي</span>
+        <span class="grade__label">باك 1 - أدبي</span>
         <span class="grade__hint">
           سجّل
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
@@ -248,7 +258,7 @@
       </button>
 
       <button type="button" class="grade" data-grade="باك 2 - اقتصاد" data-reveal="scale" data-reveal-step="7">
-        <span class="grade__label">باك 2 — اقتصاد</span>
+        <span class="grade__label">باك 2 - اقتصاد</span>
         <span class="grade__hint">
           سجّل
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
@@ -271,7 +281,7 @@
       <span class="eyebrow" data-reveal>عروضنا الحالية</span>
       <h2 data-reveal data-reveal-step="1">عروض مركز النخبة</h2>
       <p data-reveal data-reveal-step="2">
-        فرصتان متاحتان الآن — بمناسبة افتتاح المركز ولفترة محدودة.
+        فرصتان متاحتان الآن، بمناسبة افتتاح المركز ولفترة محدودة.
       </p>
     </div>
 
@@ -285,7 +295,7 @@
         </span>
 
         <h3>الدورة <span class="accent">المجانية</span> للبريفيه</h3>
-        <p>تحضير مكثّف لامتحان البريفيه لطلاب الصف التاسع — احجز مكانك الآن، الأماكن محدودة.</p>
+        <p>تحضير مكثّف لامتحان البريفيه لطلاب الصف التاسع. احجز مكانك الآن، الأماكن محدودة.</p>
 
         <ul class="panel__list">
           <li>
@@ -345,7 +355,7 @@
 
 <!-- ======================================================================
      SECTION: استمارة التسجيل
-     لا تُحفظ أي بيانات — الاستمارة تبني رسالة واتساب فقط.
+     لا تُحفظ أي بيانات، الاستمارة تبني رسالة واتساب فقط.
      ====================================================================== -->
 <section class="section registration" id="registration">
   <div class="container">
@@ -492,7 +502,7 @@
 
         <div class="form-privacy">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
-          <p>لا يتم حفظ أي معلومات على الموقع — تُرسل مباشرة عبر واتساب.</p>
+          <p>لا يتم حفظ أي معلومات على الموقع، تُرسل مباشرة عبر واتساب.</p>
         </div>
 
       </form>
@@ -510,7 +520,7 @@
 
         <p class="form-done__warn" id="form-trim" hidden>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17v.01"/></svg>
-          إجاباتك طويلة، لذلك قد تصل مختصرة إلى واتساب — استخدم «نسخ الرسالة» لإرسالها كاملة.
+          إجاباتك طويلة، لذلك قد تصل مختصرة إلى واتساب، استخدم «نسخ الرسالة» لإرسالها كاملة.
         </p>
 
         <div class="form-done__actions">
@@ -594,10 +604,10 @@
   <div class="container footer__inner">
 
     <div class="logo-plate">
-      <img src="assets/logo.png" alt="شعار مركز النخبة" width="727" height="813" loading="lazy">
+      <img src="assets/logo.webp" alt="شعار مركز النخبة" width="234" height="264" loading="lazy" decoding="async">
     </div>
 
-    <p class="footer__name">مركز النخبة — Elite Academy</p>
+    <p class="footer__name">مركز النخبة | Elite Academy</p>
     <p class="footer__tagline">مع النخبة… التميّز ليس خياراً بل عادة</p>
 
     <nav class="footer__nav" aria-label="روابط الموقع">
@@ -621,7 +631,7 @@
     </div>
 
     <p class="footer__bottom">
-      جميع الحقوق محفوظة © مركز النخبة التعليمي — طرابلس، مخيم البداوي
+      جميع الحقوق محفوظة © مركز النخبة التعليمي · طرابلس، مخيم البداوي
     </p>
 
   </div>

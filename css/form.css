@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Registration form — استمارة التسجيل
+   Registration form: استمارة التسجيل
    No data is stored or transmitted; the form only composes a WhatsApp message.
    ========================================================================== */
 
@@ -195,7 +195,7 @@ select.field__control {
 .form-actions { margin-top: var(--sp-5); }
 
 /* --------------------------------------------------------------------------
-   Success panel — shown after the WhatsApp message is composed
+   Success panel: shown after the WhatsApp message is composed
    -------------------------------------------------------------------------- */
 
 .form-done {

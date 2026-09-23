@@ -1,5 +1,5 @@
 /* ==========================================================================
-   بناء روابط واتساب — لا يتم حفظ أي بيانات، الرسالة تُبنى في متصفح الزائر فقط
+   بناء روابط واتساب: لا يتم حفظ أي بيانات، الرسالة تُبنى في متصفح الزائر فقط
    ========================================================================== */
 
 (function () {
@@ -10,7 +10,7 @@
   /** يبني رابط wa.me مع نص مُرمّز */
   function waLink(message) {
     var base = "https://wa.me/" + S.whatsappNumber;
-    return message ? base + "?text=" + encodeURIComponent(message) : base;
+    return message ? base + "?text=" + encodeURIComponent(message): base;
   }
 
   window.WA = {
