@@ -51,7 +51,7 @@
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  padding-block: var(--sp-8) var(--sp-9);
+  padding-block: var(--sp-6) var(--sp-9);
   background:
     radial-gradient(120% 80% at 50% 0%, var(--navy-600) 0%, transparent 60%),
     linear-gradient(170deg, var(--navy-800), var(--navy-900) 70%);
@@ -97,7 +97,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--sp-5);
+  gap: var(--sp-4);
+}
+
+@media (min-width: 620px) {
+  .hero__inner { gap: var(--sp-5); }
 }
 
 .hero h1 {
@@ -147,46 +151,61 @@
 
 
 /* --------------------------------------------------------------------------
-   Hero offer links: titles only, they jump down to the offers section
+   Hero offers: grouped and placed above the buttons so both are visible
+   without scrolling on a phone
    -------------------------------------------------------------------------- */
 
 .hero__offers {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--sp-2);
+  flex-direction: column;
+  gap: var(--sp-1);
   width: 100%;
-}
-
-.offer-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-2);
-  min-height: var(--tap);
-  padding: var(--sp-2) var(--sp-4);
-  border-radius: var(--r-full);
+  max-width: 420px;
+  padding: var(--sp-2) var(--sp-3) var(--sp-3);
+  border-radius: var(--r-md);
   background: var(--gold-tint-soft);
   border: 1px solid var(--gold-tint-hairline);
-  color: var(--gold-300);
+}
+
+.hero__offers-label {
+  display: block;
+  margin-bottom: var(--sp-1);
   font-family: var(--font-display);
   font-size: var(--fs-xs);
+  font-weight: var(--fw-black);
+  letter-spacing: .04em;
+  color: var(--gold-300);
+}
+
+.offer-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-height: 46px;
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-sm);
+  background: var(--scrim-2);
+  color: var(--white);
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
   font-weight: var(--fw-bold);
   line-height: 1.3;
+  text-align: start;
   transition:
     background-color var(--dur) var(--ease),
-    border-color var(--dur) var(--ease),
     transform var(--dur) var(--ease);
 }
 
-.offer-pill:hover {
-  background: var(--gold-tint-border);
-  border-color: var(--gold-400);
-  transform: translateY(-2px);
-}
+.offer-row span { flex: 1; }
+.offer-row > svg:first-child { width: 18px; height: 18px; flex: none; color: var(--gold-400); }
+.offer-row__arrow { width: 14px; height: 14px; flex: none; opacity: .75; transition: transform var(--dur) var(--ease); }
 
-.offer-pill svg { width: 16px; height: 16px; flex: none; }
-.offer-pill__arrow { width: 13px; height: 13px; opacity: .8; transition: transform var(--dur) var(--ease); }
-.offer-pill:hover .offer-pill__arrow { transform: translateX(-3px); }
+.offer-row:hover { background: var(--scrim-3); transform: translateX(-2px); }
+.offer-row:hover .offer-row__arrow { transform: translateX(-3px); }
+
+@media (min-width: 620px) {
+  .hero__offers { max-width: 560px; }
+}
 
 .hero__chips {
   display: flex;

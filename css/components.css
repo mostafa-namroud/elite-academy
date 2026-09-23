@@ -133,7 +133,7 @@
 }
 
 .logo-plate img {
-  height: clamp(96px, 22vw, 132px);
+  height: clamp(84px, 20vw, 132px);
   width: auto;
 }
 
