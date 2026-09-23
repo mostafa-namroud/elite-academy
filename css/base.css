@@ -21,7 +21,9 @@ body {
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  overflow-x: hidden;
+  /* clip وليس hidden: hidden يحوّل body إلى حاوية تمرير, وهذا يعطّل
+     الانتقال إلى الروابط الداخلية مثل ‎#offers ويربك الهيدر اللاصق. */
+  overflow-x: clip;
   /* room for the fixed mobile action bar */
   padding-bottom: calc(var(--mobilebar-h) + env(safe-area-inset-bottom, 0px));
 }

@@ -65,9 +65,6 @@
   --whatsapp-tint: rgba(37, 211, 102, .14);
 
   --gold-glow: rgba(198, 154, 59, .22);
-  --announce-bg: linear-gradient(100deg, #C69A3B, #D9B45C 55%, #C69A3B);
-  --announce-ink: #17203F;
-  --announce-dot: #17203F;
   --header-bg: rgba(247, 244, 238, .82);
   --header-bg-stuck: rgba(247, 244, 238, .94);
 
@@ -144,7 +141,6 @@
 
   /* ---------- Component ---------- */
   --header-h: 64px;
-  --announce-h: 40px;
   --mobilebar-h: 76px;   /* الارتفاع الفعلي للشريط 73px + هامش أمان */
   --tap: 48px;
 }
