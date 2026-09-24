@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   body { background:#2b2f3a; margin:0; padding:24px; font-family:system-ui; color:#eee; }
-  canvas { background:#fff; width:320px; height:auto; margin:0 12px 12px 0; box-shadow:0 8px 24px rgba(0,0,0,.4); }
+  canvas { background:#fff; width:640px; height:auto; margin:0 0 12px 0; box-shadow:0 8px 24px rgba(0,0,0,.4); }
   #log { font:12px ui-monospace,monospace; white-space:pre; }
 </style>
 </head>
@@ -18,10 +18,10 @@
 
 <script>
 /* ==========================================================================
-   مولّد بطاقة A6 لمركز النخبة.
+   مولّد بطاقة A6 أفقية لمركز النخبة.
 
    أداة بناء, ليست جزءاً من الموقع. تُشغَّل يدوياً عند الحاجة لإعادة توليد
-   ملفات مجلد print/, ثم يحوّل سكربت بايثون نتيجتها إلى PDF.
+   ملفات مجلد print/, ثم يحوّل سكربت بايثون نتيجتها إلى PDF وصورة واتساب.
 
    لماذا المتصفح بدل بايثون: تشكيل الحروف العربية وترتيبها يحتاج محرّك نص,
    و Pillow في هذه البيئة بلا HarfBuzz فينتج حروفاً منفصلة ومقلوبة.
@@ -34,8 +34,8 @@ const DPI = 300;
 const MM  = DPI / 25.4;
 const mm  = v => v * MM;
 
-const W = Math.round(mm(111));      // A6 105mm + 3mm bleed each side
-const H = Math.round(mm(154));      // A6 148mm + 3mm bleed each side
+const W = Math.round(mm(154));      // A6 أفقية: 148 ملم + 3 ملم bleed لكل جهة
+const H = Math.round(mm(111));      // A6 أفقية: 105 ملم + 3 ملم bleed لكل جهة
 const BLEED = Math.round(mm(3));
 const SAFE  = BLEED + Math.round(mm(5));
 const CW = W - 2 * SAFE;
@@ -45,14 +45,36 @@ const GOLD = '#D4A43C';   // أفتح قليلاً من ذهب الموقع لأ
 const GOLD_L = '#E6C475';
 const CREAM = '#F7F4EE', WHITE = '#FFFFFF', INK = '#14161C', MUTED = '#5B6375';
 
-/* ---- المقاسات التي تغيّرت بناءً على مراجعة المستخدم ---- */
-const QR_MM      = 42;    // كبُر على مراحل: 21 ثم 31 ثم 36 ثم 42
-const ADDR_MM    = 4.0;
-const ADDR_LEAD  = 5.0;
-const BAND_MM    = 42;    // يضيق كلما كبر رمز QR
+/* ---- المقاسات القابلة للتعديل ---- */
+const QR_MM      = 42;    // لا تُصغّره: الهامش حوله جزء من الرمز
+const GUTTER_MM  = 5;     // الفراغ بين عمود الرمز وعمود النص
+const ADDR_MM    = 3.8;
+const ADDR_LEAD  = 4.6;
+const BAND_MM    = 30;    // الشريط الكحلي في الأعلى
+
+/* ---- العمودان: الرمز يساراً والنص يميناً, والقراءة من اليمين ---- */
+const QR_PX = Math.round(mm(QR_MM));
+const QR_X  = SAFE;
+const COL_R = W - SAFE;                                  // حافة عمود النص اليمنى
+const COL_W = CW - QR_PX - Math.round(mm(GUTTER_MM));
+const COL_L = COL_R - COL_W;
+
+const BAND     = Math.round(mm(BAND_MM));
+const BODY_BOT = H - SAFE;
 
 const QR_N = 33;
 const QR_BITS = '111111101110001101111101101111111100000101111001010100000101000001101110101101100011100111101011101101110100100111001100011001011101101110100001000100010001001011101100000101010010100101010001000001111111101010101010101010101111111000000001101111011101100100000000001110101001001100101010111100111011100011110000010000101011001101100110110001000111111100110101110001001011101001100101101000001110001000100101000001100011110010010100111011010101000110011001001001001001101011000100001010011110110010110010010010000111110100001101111101101110110011100000010110000011010001001000001110101101000001101111110101001011111100001000110111000010010101100000111110111100111111100110110001110010100011010111110010110110011110101001001001101100101111101111100110100000110100101011111010001110111000111100101000111011110100100011111110010000000001000100010111110100011001111111100111001111110101101011110100000100100000000111100100011111101110101100101001011100111111011101110101011001000000100010010001101110101010100111011010111001100100000100000111000101100010101100111111100000011000110011110000010';
+
+/* كل الحروف المستعملة في البطاقة: تُمرَّر إلى fonts.load لإجبار تحميل الجزء العربي */
+const SAMPLE = 'مع النخبة… التميّز ليس خياراً بل عادة من الصف الخامس حتى البكالوريا ' +
+  'علمي · أدبي · اقتصاد عروض متاحة الآن مجاناً الدورة المجانية للبريفيه خصم للطلاب الجدد ' +
+  'شرح مبسّط وسهل الفهم متابعة مستمرة للطلاب نماذج امتحانات وحلول للتسجيل والاستفسار ' +
+  'طرابلس · مخيم البداوي بجانب مستشفى الهلال القديم أمام مركز داوود للاشتراك امسح للموقع ' +
+  '@eliteacademylb +961 79 446 503 20%';
+
+const FACES = ['800 40px Almarai', '700 40px Almarai', '400 40px Almarai',
+               '600 40px "IBM Plex Sans Arabic"', '500 40px "IBM Plex Sans Arabic"',
+               '400 40px "IBM Plex Sans Arabic"'];
 
 const log = m => { document.getElementById('log').textContent += m + '\n'; };
 
@@ -81,33 +103,38 @@ function text(ctx, str, x, y, { font, fill, align = 'right', ls = '0px', dir = '
   ctx.letterSpacing = '0px'; ctx.direction = 'rtl';
 }
 
+const widthOf = (ctx, str, font) => { ctx.font = font; return ctx.measureText(str).width; };
+
 async function render(variant, logo) {
   const c = document.createElement('canvas');
   c.width = W; c.height = H;
   const x = c.getContext('2d');
+  const fail = [];
+
+  // خط بديل = بطاقة خاطئة لا يكشفها النظر بسهولة, فالفحص هنا لا في التشغيل فقط
+  FACES.forEach(f => { if (!document.fonts.check(f, SAMPLE)) fail.push('خط غير محمّل: ' + f); });
 
   x.fillStyle = CREAM; x.fillRect(0, 0, W, H);
 
   // ---------------- navy band ----------------
-  const BAND = Math.round(mm(BAND_MM));
-  const g = x.createLinearGradient(0, 0, W * 0.4, BAND);
+  const g = x.createLinearGradient(0, 0, W * 0.6, BAND);
   g.addColorStop(0, NAVY_L); g.addColorStop(1, NAVY_D);
   x.fillStyle = g; x.fillRect(0, 0, W, BAND);
 
   x.save(); x.beginPath(); x.rect(0, 0, W, BAND); x.clip();
   x.strokeStyle = 'rgba(214,167,61,.16)'; x.lineWidth = mm(1);
-  [[W * .78, -40], [W * 1.02, -40]].forEach(([sx, sy]) => {
-    x.beginPath(); x.moveTo(sx, sy); x.lineTo(sx - BAND * 1.3, BAND + 40); x.stroke();
+  [W * .10, W * .17].forEach(sx => {
+    x.beginPath(); x.moveTo(sx, -40); x.lineTo(sx - BAND * 1.3, BAND + 40); x.stroke();
   });
   x.restore();
   x.fillStyle = GOLD; x.fillRect(0, BAND - Math.round(mm(0.8)), W, Math.round(mm(0.8)));
 
-  // ---------------- logo on a light plate (brand rule) ----------------
-  const LOGO_W = Math.round(mm(19));
+  // ---------------- logo on a light plate (brand rule), at the right of the band ----------------
+  const LOGO_W = Math.round(mm(15.5));
   const LOGO_H = Math.round(LOGO_W * logo.naturalHeight / logo.naturalWidth);
-  const PAD = Math.round(mm(3.0));
+  const PAD = Math.round(mm(2.5));
   const PW = LOGO_W + PAD * 2, PH = LOGO_H + PAD * 2;
-  const PX = Math.round((W - PW) / 2), PY = Math.round(mm(4.5));
+  const PX = COL_R - PW, PY = Math.round(mm(4.5));
   x.save();
   x.shadowColor = 'rgba(0,0,0,.30)'; x.shadowBlur = mm(3); x.shadowOffsetY = mm(1);
   x.fillStyle = WHITE; roundRect(x, PX, PY, PW, PH, mm(3)); x.fill();
@@ -115,105 +142,128 @@ async function render(variant, logo) {
   x.strokeStyle = 'rgba(214,167,61,.55)'; x.lineWidth = mm(0.35);
   roundRect(x, PX, PY, PW, PH, mm(3)); x.stroke();
   x.drawImage(logo, PX + PAD, PY + PAD, LOGO_W, LOGO_H);
+  if (PY + PH > BAND - mm(2)) fail.push('الشعار يلامس حافة الشريط');
 
-  text(x, 'مع النخبة… التميّز ليس خياراً بل عادة', W / 2, PY + PH + mm(6),
-       { font: `700 ${Math.round(mm(3.9))}px Almarai`, fill: GOLD_L, align: 'center' });
+  // الشعار والجملة جنباً إلى جنب, لا فوق بعضهما: هذا ما يجعل التصميم أفقياً
+  const TAG = 'مع النخبة… التميّز ليس خياراً بل عادة';
+  const TAG_F = `700 ${Math.round(mm(4.8))}px Almarai`;
+  const tagRight = PX - mm(7);
+  text(x, TAG, tagRight, PY + PH / 2 + mm(1.5), { font: TAG_F, fill: GOLD_L });
+  if (tagRight - widthOf(x, TAG, TAG_F) < SAFE) fail.push('جملة الشعار أعرض من الشريط');
 
-  // ---------------- body ----------------
-  let y = BAND + mm(7);
-  text(x, 'من الصف الخامس حتى البكالوريا', W / 2, y,
-       { font: `800 ${Math.round(mm(4.9))}px Almarai`, fill: NAVY, align: 'center' });
-  y += mm(6);
-  text(x, 'علمي · أدبي · اقتصاد', W / 2, y,
-       { font: `400 ${Math.round(mm(3.6))}px "IBM Plex Sans Arabic"`, fill: MUTED, align: 'center' });
-  y += mm(6);
+  // ---------------- right column: heading and sub ----------------
+  const H1 = 'من الصف الخامس حتى البكالوريا';
+  const H1_F = `800 ${Math.round(mm(4.9))}px Almarai`;
+  const H2 = 'علمي · أدبي · اقتصاد';
+  const H2_F = `400 ${Math.round(mm(3.6))}px "IBM Plex Sans Arabic"`;
+  text(x, H1, COL_R, BAND + mm(6), { font: H1_F, fill: NAVY });
+  text(x, H2, COL_R, BAND + mm(12), { font: H2_F, fill: MUTED });
+  if (widthOf(x, H1, H1_F) > COL_W) fail.push('العنوان أعرض من العمود');
+  if (widthOf(x, H2, H2_F) > COL_W) fail.push('العنوان الفرعي أعرض من العمود');
 
-  const boxX = SAFE, boxW = CW;
+  // ---------------- contact block, anchored to the bottom safe line ----------------
+  // يُبنى من الأسفل إلى الأعلى: آخر سطر عنوان يجلس على الهامش الآمن تماماً,
+  // فلا يزحف المحتوى خارج البطاقة مهما تغيّرت المقاسات فوقه.
+  const ADDR = ['طرابلس · مخيم البداوي', 'بجانب مستشفى الهلال القديم', 'أمام مركز داوود للاشتراك'];
+  const ADDR_F = `500 ${Math.round(mm(ADDR_MM))}px "IBM Plex Sans Arabic"`;
+  const PHONE = '+961 79 446 503';
+  const PHONE_F = `800 ${Math.round(mm(5.6))}px Almarai`;
+  const LABEL = 'للتسجيل والاستفسار';
+  const LABEL_F = `700 ${Math.round(mm(3.0))}px Almarai`;
+
+  // العنوان يسار الهاتف لا تحته: العرض هو ما تملكه البطاقة الأفقية والارتفاع هو ما ينقصها.
+  // وهذا أيضاً ما يمنع الفراغ الميت في أسفل العمود.
+  const addrTop = BODY_BOT - (ADDR.length - 1) * mm(ADDR_LEAD);
+  const phoneY  = Math.round((addrTop - mm(2.9) + BODY_BOT) / 2 + mm(2.0));
+  const labelY  = phoneY - mm(7.0);
+  const hairY   = labelY - mm(4.2);
+
+  const phoneW = widthOf(x, PHONE, PHONE_F);
+  const addrR  = COL_R - phoneW - mm(6);
+  const addrW  = Math.max(...ADDR.map(l => widthOf(x, l, ADDR_F)));
+
+  x.fillStyle = 'rgba(22,38,92,.15)';
+  x.fillRect(COL_L, hairY, COL_W, Math.max(1, Math.round(mm(0.25))));
+
+  text(x, LABEL, COL_R, labelY, { font: LABEL_F, fill: GOLD });
+  text(x, PHONE, COL_R, phoneY, { font: PHONE_F, fill: NAVY, dir: 'ltr' });
+  ADDR.forEach((line, i) => {
+    text(x, line, addrR, addrTop + i * mm(ADDR_LEAD), { font: ADDR_F, fill: INK });
+  });
+  if (addrR - addrW < COL_L) fail.push('العنوان يتجاوز العمود نحو الرمز');
+  if (widthOf(x, LABEL, LABEL_F) > COL_W) fail.push('سطر التسجيل أعرض من العمود');
+
+  // ---------------- the box sits between the heading and the hairline ----------------
+  const boxY = BAND + mm(15.5);
+  const boxLimit = hairY - mm(2);
+  let boxH;
+
   if (variant === 'offers') {
     const rows = [['مجاناً', 'الدورة المجانية للبريفيه'], ['20%', 'خصم للطلاب الجدد']];
-    const rowH = Math.round(mm(10)), gap = Math.round(mm(2.2));
-    const boxH = rows.length * rowH + (rows.length - 1) * gap + mm(7);
-    x.fillStyle = 'rgba(214,167,61,.12)'; roundRect(x, boxX, y, boxW, boxH, mm(3)); x.fill();
+    const rowH = Math.round(mm(11.0)), gap = Math.round(mm(2.4)), head = mm(8.0);
+    boxH = head + rows.length * rowH + (rows.length - 1) * gap + mm(3.2);
+    x.fillStyle = 'rgba(214,167,61,.12)'; roundRect(x, COL_L, boxY, COL_W, boxH, mm(3)); x.fill();
     x.strokeStyle = 'rgba(214,167,61,.5)'; x.lineWidth = mm(0.3);
-    roundRect(x, boxX, y, boxW, boxH, mm(3)); x.stroke();
-    text(x, 'عروض متاحة الآن', W / 2, y + mm(6.4),
+    roundRect(x, COL_L, boxY, COL_W, boxH, mm(3)); x.stroke();
+    text(x, 'عروض متاحة الآن', COL_L + COL_W / 2, boxY + mm(6.0),
          { font: `800 ${Math.round(mm(3.3))}px Almarai`, fill: GOLD, align: 'center' });
-    let ry = y + mm(7.6);
+    let ry = boxY + head;
     rows.forEach(([badge, label]) => {
-      x.fillStyle = WHITE; roundRect(x, boxX + mm(3), ry, boxW - mm(6), rowH, mm(2)); x.fill();
+      x.fillStyle = WHITE; roundRect(x, COL_L + mm(3), ry, COL_W - mm(6), rowH, mm(2)); x.fill();
       const bw = Math.round(mm(16));
       x.fillStyle = GOLD;
-      roundRect(x, boxX + boxW - mm(3) - bw - mm(2.5), ry + mm(1.6), bw, rowH - mm(3.2), mm(1.6)); x.fill();
-      text(x, badge, boxX + boxW - mm(3) - bw / 2 - mm(2.5), ry + rowH / 2 + mm(1.4),
-           { font: `800 ${Math.round(mm(4.0))}px Almarai`, fill: NAVY_D, align: 'center' });
-      text(x, label, boxX + boxW - mm(3) - bw - mm(6), ry + rowH / 2 + mm(1.3),
+      roundRect(x, COL_R - mm(3) - bw - mm(2.5), ry + mm(1.5), bw, rowH - mm(3.0), mm(1.6)); x.fill();
+      text(x, badge, COL_R - mm(3) - bw / 2 - mm(2.5), ry + rowH / 2 + mm(1.3),
+           { font: `800 ${Math.round(mm(3.8))}px Almarai`, fill: NAVY_D, align: 'center' });
+      text(x, label, COL_R - mm(3) - bw - mm(6), ry + rowH / 2 + mm(1.2),
            { font: `700 ${Math.round(mm(3.9))}px Almarai`, fill: NAVY });
       ry += rowH + gap;
     });
-    y += boxH;
   } else {
     const points = ['شرح مبسّط وسهل الفهم', 'متابعة مستمرة للطلاب', 'نماذج امتحانات وحلول'];
-    const rowH = Math.round(mm(8.4));
-    const boxH = points.length * rowH + mm(4.4);
-    x.fillStyle = 'rgba(22,38,92,.05)'; roundRect(x, boxX, y, boxW, boxH, mm(3)); x.fill();
+    const rowH = Math.round(mm(9.5)), head = mm(3.2);
+    boxH = head + points.length * rowH + mm(2.8);
+    x.fillStyle = 'rgba(22,38,92,.05)'; roundRect(x, COL_L, boxY, COL_W, boxH, mm(3)); x.fill();
     x.strokeStyle = 'rgba(22,38,92,.14)'; x.lineWidth = mm(0.3);
-    roundRect(x, boxX, y, boxW, boxH, mm(3)); x.stroke();
-    let ry = y + mm(2.8);
+    roundRect(x, COL_L, boxY, COL_W, boxH, mm(3)); x.stroke();
+    let ry = boxY + head;
     points.forEach(p => {
-      const rh = rowH - mm(1.3);
-      x.fillStyle = WHITE; roundRect(x, boxX + mm(3), ry, boxW - mm(6), rh, mm(2)); x.fill();
-      const cy = ry + rh / 2, cx = boxX + boxW - mm(8);
+      const rh = rowH - mm(1.2);
+      x.fillStyle = WHITE; roundRect(x, COL_L + mm(3), ry, COL_W - mm(6), rh, mm(2)); x.fill();
+      const cy = ry + rh / 2, cx = COL_R - mm(8);
       x.strokeStyle = GOLD; x.lineWidth = mm(0.9); x.lineCap = 'round'; x.lineJoin = 'round';
       x.beginPath();
       x.moveTo(cx + mm(1.9), cy - mm(1.6)); x.lineTo(cx + mm(0.3), cy + mm(1.5)); x.lineTo(cx - mm(1.9), cy - mm(0.5));
       x.stroke();
-      text(x, p, boxX + boxW - mm(12), cy + mm(1.4),
+      text(x, p, COL_R - mm(12), cy + mm(1.3),
            { font: `600 ${Math.round(mm(3.8))}px "IBM Plex Sans Arabic"`, fill: NAVY });
       ry += rowH;
     });
-    y += boxH;
   }
+  if (boxY + boxH > boxLimit) fail.push('الصندوق يصطدم بكتلة الاتصال');
 
-  // ---------------- action zone ----------------
-  const QS = Math.round(mm(QR_MM));
-  const QR_BLOCK      = QS + mm(4.4) + mm(2);
-  const CONTACT_BLOCK = mm(4) + mm(7) + mm(6.5) + 3 * mm(ADDR_LEAD) + mm(1.6) + mm(3);
-  const ZONE = Math.max(QR_BLOCK, CONTACT_BLOCK);
-  const qrY = Math.round(H - SAFE - ZONE);
-  const qrX = SAFE;
-
-  x.fillStyle = 'rgba(22,38,92,.15)';
-  x.fillRect(SAFE, qrY - mm(6), CW, Math.max(1, Math.round(mm(0.25))));
-
-  const moduleSize = drawQR(x, qrX, qrY, QS);
-  text(x, 'امسح للموقع', qrX + QS / 2, qrY + QS + mm(4.4),
+  // ---------------- left column: QR, label, handle ----------------
+  // المعرّف هنا لا في كتلة الاتصال: هذا ما يوفّر لعمود النص مكان أسطر العنوان الثلاثة
+  const QR_LABEL_GAP = mm(4.6), HANDLE_GAP = mm(5.6);
+  const leftH = QR_PX + QR_LABEL_GAP + HANDLE_GAP;
+  const qrY = Math.round(BAND + (BODY_BOT - BAND - leftH) / 2);
+  const moduleSize = drawQR(x, QR_X, qrY, QR_PX);
+  text(x, 'امسح للموقع', QR_X + QR_PX / 2, qrY + QR_PX + QR_LABEL_GAP,
        { font: `700 ${Math.round(mm(3.0))}px Almarai`, fill: MUTED, align: 'center' });
+  text(x, '@eliteacademylb', QR_X + QR_PX / 2, qrY + QR_PX + QR_LABEL_GAP + HANDLE_GAP,
+       { font: `600 ${Math.round(mm(3.1))}px "IBM Plex Sans Arabic"`, fill: NAVY, align: 'center', dir: 'ltr' });
 
-  const rx = W - SAFE;
-  let widest = 0;
-  const measure = (str, font) => { x.font = font; widest = Math.max(widest, x.measureText(str).width); };
-  let cy2 = qrY + mm(4);
-  text(x, 'للتسجيل والاستفسار', rx, cy2, { font: `700 ${Math.round(mm(3.0))}px Almarai`, fill: GOLD });
-  cy2 += mm(7);
-  measure('+961 79 446 503', `800 ${Math.round(mm(6.2))}px Almarai`);
-  text(x, '+961 79 446 503', rx, cy2,
-       { font: `800 ${Math.round(mm(6.2))}px Almarai`, fill: NAVY, dir: 'ltr' });
-  cy2 += mm(6.5);
-  ['طرابلس · مخيم البداوي', 'بجانب مستشفى الهلال القديم', 'أمام مركز داوود للاشتراك'].forEach(line => {
-    measure(line, `500 ${Math.round(mm(ADDR_MM))}px "IBM Plex Sans Arabic"`);
-    text(x, line, rx, cy2, { font: `500 ${Math.round(mm(ADDR_MM))}px "IBM Plex Sans Arabic"`, fill: INK });
-    cy2 += mm(ADDR_LEAD);
-  });
-  cy2 += mm(1.6);
-  text(x, '@eliteacademylb', rx, cy2,
-       { font: `600 ${Math.round(mm(3.1))}px "IBM Plex Sans Arabic"`, fill: NAVY, dir: 'ltr' });
+  if (qrY < BAND + mm(2)) fail.push('الرمز يلامس الشريط');
+  if (qrY + leftH > BODY_BOT) fail.push('العمود الأيسر يتجاوز الهامش');
+  if (COL_L - (QR_X + QR_PX) < mm(4)) fail.push('الفراغ بين العمودين أقل من 4 ملم');
 
-  const limit = H - SAFE, bottom = Math.max(cy2, qrY + QS + mm(4.4));
-  const textLeft = rx - widest, qrRight = qrX + QS, gapX = textLeft - qrRight;
-  const ok = bottom <= limit && y < qrY - mm(6) && gapX >= mm(4);
-  log(`${variant}: ${W}x${H}  logo ${(LOGO_W/MM).toFixed(0)}mm (src ${logo.naturalWidth}px)  QR ${(QS/MM).toFixed(0)}mm  module ${(moduleSize/MM).toFixed(2)}mm  addr ${ADDR_MM}mm`);
-  log(`  bodyEnds ${Math.round(y)}  zoneStarts ${Math.round(qrY - mm(6))}  bottom ${Math.round(bottom)}  limit ${limit}`);
-  log(`  widestText ${(widest/MM).toFixed(1)}mm  gap QR->text ${(gapX/MM).toFixed(1)}mm (min 4)  => ${ok ? 'PASS' : 'FAIL'}`);
+  log(`${variant}: ${W}x${H}px  ${(W/MM).toFixed(0)}x${(H/MM).toFixed(0)}mm  ` +
+      `QR ${QR_MM}mm (module ${(moduleSize/MM).toFixed(2)}mm)  col ${(COL_W/MM).toFixed(0)}mm`);
+  log(`  h1 ${(widthOf(x,H1,H1_F)/MM).toFixed(1)}  tagline ${(widthOf(x,TAG,TAG_F)/MM).toFixed(1)}  ` +
+      `phone ${(phoneW/MM).toFixed(1)} + addr ${(addrW/MM).toFixed(1)}  (col ${(COL_W/MM).toFixed(0)}mm)`);
+  log(`  box ${(boxY/MM).toFixed(1)}->${((boxY+boxH)/MM).toFixed(1)}  hairline ${(hairY/MM).toFixed(1)}  ` +
+      `lastLine ${(BODY_BOT/MM).toFixed(1)}  leftCol ${(qrY/MM).toFixed(1)}->${((qrY+leftH)/MM).toFixed(1)}`);
+  log(`  => ${fail.length ? 'FAIL: ' + fail.join(' | ') : 'PASS'}`);
 
   document.getElementById('out').appendChild(c);
   const res = await fetch('http://localhost:5174/save/card-' + variant + '.png',
@@ -223,11 +273,9 @@ async function render(variant, logo) {
 }
 
 (async () => {
-  await Promise.all([
-    document.fonts.load('800 40px Almarai'), document.fonts.load('700 40px Almarai'),
-    document.fonts.load('400 40px Almarai'), document.fonts.load('600 40px "IBM Plex Sans Arabic"'),
-    document.fonts.load('500 40px "IBM Plex Sans Arabic"'), document.fonts.load('400 40px "IBM Plex Sans Arabic"')
-  ]);
+  // النص عيّنةً إلزامي: خطوط Google مقسّمة حسب unicode-range, و load() بلا نص
+  // يجلب الجزء اللاتيني فقط فتُقاس الحروف العربية بخط بديل وتخرج البطاقة الأولى بخط خاطئ.
+  await Promise.all(FACES.map(f => document.fonts.load(f, SAMPLE)));
   await document.fonts.ready;
   const logo = new Image();
   logo.src = 'logo-master.png';
