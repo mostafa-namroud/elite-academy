@@ -23,8 +23,8 @@ window.SITE = {
 
   /* روابط التواصل: ضع الرابط بين علامتي التنصيص عند توفره */
   social: {
-    instagram: "",
-    facebook: ""
+    instagram: "https://www.instagram.com/eliteacademylb",
+    facebook: "https://www.facebook.com/share/19MoYqUsjA/"
   },
 
   /* الرسائل الجاهزة */
