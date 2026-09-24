@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Card renderer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { background:#2b2f3a; margin:0; padding:24px; font-family:system-ui; color:#eee; }
+  canvas { background:#fff; width:320px; height:auto; margin:0 12px 12px 0; box-shadow:0 8px 24px rgba(0,0,0,.4); }
+  #log { font:12px ui-monospace,monospace; white-space:pre; }
+</style>
+</head>
+<body>
+<div id="out"></div>
+<div id="log"></div>
+
+<script>
+/* ==========================================================================
+   مولّد بطاقة A6 لمركز النخبة.
+
+   أداة بناء, ليست جزءاً من الموقع. تُشغَّل يدوياً عند الحاجة لإعادة توليد
+   ملفات مجلد print/, ثم يحوّل سكربت بايثون نتيجتها إلى PDF.
+
+   لماذا المتصفح بدل بايثون: تشكيل الحروف العربية وترتيبها يحتاج محرّك نص,
+   و Pillow في هذه البيئة بلا HarfBuzz فينتج حروفاً منفصلة ومقلوبة.
+
+   التشغيل: شغّل خادماً في مجلد المشروع, افتح print/card-render.html,
+   وشغّل خادم الحفظ على المنفذ 5174.
+   ========================================================================== */
+
+const DPI = 300;
+const MM  = DPI / 25.4;
+const mm  = v => v * MM;
+
+const W = Math.round(mm(111));      // A6 105mm + 3mm bleed each side
+const H = Math.round(mm(154));      // A6 148mm + 3mm bleed each side
+const BLEED = Math.round(mm(3));
+const SAFE  = BLEED + Math.round(mm(5));
+const CW = W - 2 * SAFE;
+
+const NAVY = '#16265C', NAVY_D = '#0E1A3C', NAVY_L = '#24397F';
+const GOLD = '#D4A43C';   // أفتح قليلاً من ذهب الموقع لأن الطباعة تُبهت الألوان الدافئة
+const GOLD_L = '#E6C475';
+const CREAM = '#F7F4EE', WHITE = '#FFFFFF', INK = '#14161C', MUTED = '#5B6375';
+
+/* ---- المقاسات التي تغيّرت بناءً على مراجعة المستخدم ---- */
+const QR_MM      = 31;    // كان 21. أكبر بمرتين تقريباً ليُقرأ بسهولة بعد الطباعة
+const ADDR_MM    = 3.6;   // كان 3.2
+const ADDR_LEAD  = 4.6;   // كان 4.1
+const BAND_MM    = 49;    // ضاق قليلاً لاستيعاب رمز QR الأكبر
+
+const QR_N = 33;
+const QR_BITS = '111111101110001101111101101111111100000101111001010100000101000001101110101101100011100111101011101101110100100111001100011001011101101110100001000100010001001011101100000101010010100101010001000001111111101010101010101010101111111000000001101111011101100100000000001110101001001100101010111100111011100011110000010000101011001101100110110001000111111100110101110001001011101001100101101000001110001000100101000001100011110010010100111011010101000110011001001001001001101011000100001010011110110010110010010010000111110100001101111101101110110011100000010110000011010001001000001110101101000001101111110101001011111100001000110111000010010101100000111110111100111111100110110001110010100011010111110010110110011110101001001001101100101111101111100110100000110100101011111010001110111000111100101000111011110100100011111110010000000001000100010111110100011001111111100111001111110101101011110100000100100000000111100100011111101110101100101001011100111111011101110101011001000000100010010001101110101010100111011010111001100100000100000111000101100010101100111111100000011000110011110000010';
+
+const log = m => { document.getElementById('log').textContent += m + '\n'; };
+
+function roundRect(ctx, X, Y, RW, RH, r) { ctx.beginPath(); ctx.roundRect(X, Y, RW, RH, r); }
+
+/** يرسم رمز QR من مصفوفة الوحدات: أحدّ من تصغير صورة جاهزة */
+function drawQR(ctx, x, y, sizePx) {
+  const quiet = 4, total = QR_N + quiet * 2, m = sizePx / total;
+  ctx.fillStyle = WHITE; ctx.fillRect(x, y, sizePx, sizePx);
+  ctx.fillStyle = NAVY_D;
+  for (let r = 0; r < QR_N; r++) for (let c = 0; c < QR_N; c++) {
+    if (QR_BITS[r * QR_N + c] === '1') {
+      ctx.fillRect(Math.floor(x + (c + quiet) * m), Math.floor(y + (r + quiet) * m),
+                   Math.ceil(m) + 1, Math.ceil(m) + 1);
+    }
+  }
+  return m;
+}
+
+/** dir مهم: الهاتف والمعرّف يُكتبان من اليسار, وإلا انعكست أرقامهما وعلامة @ */
+function text(ctx, str, x, y, { font, fill, align = 'right', ls = '0px', dir = 'rtl' }) {
+  ctx.font = font; ctx.fillStyle = fill; ctx.textAlign = align;
+  ctx.letterSpacing = ls; ctx.textBaseline = 'alphabetic'; ctx.direction = dir;
+  ctx.fillText(str, x, y);
+  ctx.letterSpacing = '0px'; ctx.direction = 'rtl';
+}
+
+async function render(variant, logo) {
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const x = c.getContext('2d');
+
+  x.fillStyle = CREAM; x.fillRect(0, 0, W, H);
+
+  // ---------------- navy band ----------------
+  const BAND = Math.round(mm(BAND_MM));
+  const g = x.createLinearGradient(0, 0, W * 0.4, BAND);
+  g.addColorStop(0, NAVY_L); g.addColorStop(1, NAVY_D);
+  x.fillStyle = g; x.fillRect(0, 0, W, BAND);
+
+  x.save(); x.beginPath(); x.rect(0, 0, W, BAND); x.clip();
+  x.strokeStyle = 'rgba(214,167,61,.16)'; x.lineWidth = mm(1);
+  [[W * .78, -40], [W * 1.02, -40]].forEach(([sx, sy]) => {
+    x.beginPath(); x.moveTo(sx, sy); x.lineTo(sx - BAND * 1.3, BAND + 40); x.stroke();
+  });
+  x.restore();
+  x.fillStyle = GOLD; x.fillRect(0, BAND - Math.round(mm(0.8)), W, Math.round(mm(0.8)));
+
+  // ---------------- logo on a light plate (brand rule) ----------------
+  const LOGO_W = Math.round(mm(21));
+  const LOGO_H = Math.round(LOGO_W * logo.naturalHeight / logo.naturalWidth);
+  const PAD = Math.round(mm(3.2));
+  const PW = LOGO_W + PAD * 2, PH = LOGO_H + PAD * 2;
+  const PX = Math.round((W - PW) / 2), PY = Math.round(mm(5.5));
+  x.save();
+  x.shadowColor = 'rgba(0,0,0,.30)'; x.shadowBlur = mm(3); x.shadowOffsetY = mm(1);
+  x.fillStyle = WHITE; roundRect(x, PX, PY, PW, PH, mm(3)); x.fill();
+  x.restore();
+  x.strokeStyle = 'rgba(214,167,61,.55)'; x.lineWidth = mm(0.35);
+  roundRect(x, PX, PY, PW, PH, mm(3)); x.stroke();
+  x.drawImage(logo, PX + PAD, PY + PAD, LOGO_W, LOGO_H);
+
+  text(x, 'مع النخبة… التميّز ليس خياراً بل عادة', W / 2, PY + PH + mm(6.5),
+       { font: `700 ${Math.round(mm(3.9))}px Almarai`, fill: GOLD_L, align: 'center' });
+
+  // ---------------- body ----------------
+  let y = BAND + mm(8);
+  text(x, 'من الصف الخامس حتى البكالوريا', W / 2, y,
+       { font: `800 ${Math.round(mm(4.9))}px Almarai`, fill: NAVY, align: 'center' });
+  y += mm(6);
+  text(x, 'علمي · أدبي · اقتصاد', W / 2, y,
+       { font: `400 ${Math.round(mm(3.6))}px "IBM Plex Sans Arabic"`, fill: MUTED, align: 'center' });
+  y += mm(6);
+
+  const boxX = SAFE, boxW = CW;
+  if (variant === 'offers') {
+    const rows = [['مجاناً', 'الدورة المجانية للبريفيه'], ['20%', 'خصم للطلاب الجدد']];
+    const rowH = Math.round(mm(10)), gap = Math.round(mm(2.2));
+    const boxH = rows.length * rowH + (rows.length - 1) * gap + mm(8);
+    x.fillStyle = 'rgba(214,167,61,.12)'; roundRect(x, boxX, y, boxW, boxH, mm(3)); x.fill();
+    x.strokeStyle = 'rgba(214,167,61,.5)'; x.lineWidth = mm(0.3);
+    roundRect(x, boxX, y, boxW, boxH, mm(3)); x.stroke();
+    text(x, 'عروض متاحة الآن', W / 2, y + mm(6.4),
+         { font: `800 ${Math.round(mm(3.3))}px Almarai`, fill: GOLD, align: 'center' });
+    let ry = y + mm(7.6);
+    rows.forEach(([badge, label]) => {
+      x.fillStyle = WHITE; roundRect(x, boxX + mm(3), ry, boxW - mm(6), rowH, mm(2)); x.fill();
+      const bw = Math.round(mm(16));
+      x.fillStyle = GOLD;
+      roundRect(x, boxX + boxW - mm(3) - bw - mm(2.5), ry + mm(1.6), bw, rowH - mm(3.2), mm(1.6)); x.fill();
+      text(x, badge, boxX + boxW - mm(3) - bw / 2 - mm(2.5), ry + rowH / 2 + mm(1.4),
+           { font: `800 ${Math.round(mm(4.0))}px Almarai`, fill: NAVY_D, align: 'center' });
+      text(x, label, boxX + boxW - mm(3) - bw - mm(6), ry + rowH / 2 + mm(1.3),
+           { font: `700 ${Math.round(mm(3.9))}px Almarai`, fill: NAVY });
+      ry += rowH + gap;
+    });
+    y += boxH;
+  } else {
+    const points = ['شرح مبسّط وسهل الفهم', 'متابعة مستمرة للطلاب', 'نماذج امتحانات وحلول'];
+    const rowH = Math.round(mm(8.4));
+    const boxH = points.length * rowH + mm(4.4);
+    x.fillStyle = 'rgba(22,38,92,.05)'; roundRect(x, boxX, y, boxW, boxH, mm(3)); x.fill();
+    x.strokeStyle = 'rgba(22,38,92,.14)'; x.lineWidth = mm(0.3);
+    roundRect(x, boxX, y, boxW, boxH, mm(3)); x.stroke();
+    let ry = y + mm(2.8);
+    points.forEach(p => {
+      const rh = rowH - mm(1.3);
+      x.fillStyle = WHITE; roundRect(x, boxX + mm(3), ry, boxW - mm(6), rh, mm(2)); x.fill();
+      const cy = ry + rh / 2, cx = boxX + boxW - mm(8);
+      x.strokeStyle = GOLD; x.lineWidth = mm(0.9); x.lineCap = 'round'; x.lineJoin = 'round';
+      x.beginPath();
+      x.moveTo(cx + mm(1.9), cy - mm(1.6)); x.lineTo(cx + mm(0.3), cy + mm(1.5)); x.lineTo(cx - mm(1.9), cy - mm(0.5));
+      x.stroke();
+      text(x, p, boxX + boxW - mm(12), cy + mm(1.4),
+           { font: `600 ${Math.round(mm(3.8))}px "IBM Plex Sans Arabic"`, fill: NAVY });
+      ry += rowH;
+    });
+    y += boxH;
+  }
+
+  // ---------------- action zone ----------------
+  const QS = Math.round(mm(QR_MM));
+  const QR_BLOCK      = QS + mm(4.4) + mm(2);
+  const CONTACT_BLOCK = mm(4) + mm(7) + mm(6.5) + 3 * mm(ADDR_LEAD) + mm(1.6) + mm(3);
+  const ZONE = Math.max(QR_BLOCK, CONTACT_BLOCK);
+  const qrY = Math.round(H - SAFE - ZONE);
+  const qrX = SAFE;
+
+  x.fillStyle = 'rgba(22,38,92,.15)';
+  x.fillRect(SAFE, qrY - mm(6), CW, Math.max(1, Math.round(mm(0.25))));
+
+  const moduleSize = drawQR(x, qrX, qrY, QS);
+  text(x, 'امسح للموقع', qrX + QS / 2, qrY + QS + mm(4.4),
+       { font: `700 ${Math.round(mm(3.0))}px Almarai`, fill: MUTED, align: 'center' });
+
+  const rx = W - SAFE;
+  let cy2 = qrY + mm(4);
+  text(x, 'للتسجيل والاستفسار', rx, cy2, { font: `700 ${Math.round(mm(3.0))}px Almarai`, fill: GOLD });
+  cy2 += mm(7);
+  text(x, '+961 79 446 503', rx, cy2,
+       { font: `800 ${Math.round(mm(6.2))}px Almarai`, fill: NAVY, dir: 'ltr' });
+  cy2 += mm(6.5);
+  ['طرابلس · مخيم البداوي', 'بجانب مستشفى الهلال القديم', 'أمام مركز داوود للاشتراك'].forEach(line => {
+    text(x, line, rx, cy2, { font: `500 ${Math.round(mm(ADDR_MM))}px "IBM Plex Sans Arabic"`, fill: INK });
+    cy2 += mm(ADDR_LEAD);
+  });
+  cy2 += mm(1.6);
+  text(x, '@eliteacademylb', rx, cy2,
+       { font: `600 ${Math.round(mm(3.1))}px "IBM Plex Sans Arabic"`, fill: NAVY, dir: 'ltr' });
+
+  const limit = H - SAFE, bottom = Math.max(cy2, qrY + QS + mm(4.4));
+  const ok = bottom <= limit && y < qrY - mm(6);
+  log(`${variant}: ${W}x${H}  logo ${(LOGO_W/MM).toFixed(0)}mm (src ${logo.naturalWidth}px)  QR ${(QS/MM).toFixed(0)}mm  module ${(moduleSize/MM).toFixed(2)}mm  addr ${ADDR_MM}mm`);
+  log(`  bodyEnds ${Math.round(y)}  zoneStarts ${Math.round(qrY - mm(6))}  bottom ${Math.round(bottom)}  limit ${limit}  => ${ok ? 'PASS' : 'FAIL: content crosses the safety margin'}`);
+
+  document.getElementById('out').appendChild(c);
+  const res = await fetch('http://localhost:5174/save/card-' + variant + '.png',
+    { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: c.toDataURL('image/png') });
+  log('  saved: ' + await res.text());
+  return c;
+}
+
+(async () => {
+  await Promise.all([
+    document.fonts.load('800 40px Almarai'), document.fonts.load('700 40px Almarai'),
+    document.fonts.load('400 40px Almarai'), document.fonts.load('600 40px "IBM Plex Sans Arabic"'),
+    document.fonts.load('500 40px "IBM Plex Sans Arabic"'), document.fonts.load('400 40px "IBM Plex Sans Arabic"')
+  ]);
+  await document.fonts.ready;
+  const logo = new Image();
+  logo.src = 'logo-master.png';
+  await logo.decode();
+  log('logo source ' + logo.naturalWidth + 'x' + logo.naturalHeight);
+  window.__cards = {};
+  window.__cards.offers = await render('offers', logo);
+  window.__cards.simple = await render('simple', logo);
+  log('done');
+})();
+</script>
+</body>
+</html>
