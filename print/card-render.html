@@ -46,10 +46,10 @@ const GOLD_L = '#E6C475';
 const CREAM = '#F7F4EE', WHITE = '#FFFFFF', INK = '#14161C', MUTED = '#5B6375';
 
 /* ---- المقاسات التي تغيّرت بناءً على مراجعة المستخدم ---- */
-const QR_MM      = 31;    // كان 21. أكبر بمرتين تقريباً ليُقرأ بسهولة بعد الطباعة
-const ADDR_MM    = 3.6;   // كان 3.2
-const ADDR_LEAD  = 4.6;   // كان 4.1
-const BAND_MM    = 49;    // ضاق قليلاً لاستيعاب رمز QR الأكبر
+const QR_MM      = 36;    // كبُر على مراحل: 21 ثم 31 ثم 36
+const ADDR_MM    = 4.0;
+const ADDR_LEAD  = 5.0;
+const BAND_MM    = 46;    // يضيق كلما كبر رمز QR
 
 const QR_N = 33;
 const QR_BITS = '111111101110001101111101101111111100000101111001010100000101000001101110101101100011100111101011101101110100100111001100011001011101101110100001000100010001001011101100000101010010100101010001000001111111101010101010101010101111111000000001101111011101100100000000001110101001001100101010111100111011100011110000010000101011001101100110110001000111111100110101110001001011101001100101101000001110001000100101000001100011110010010100111011010101000110011001001001001001101011000100001010011110110010110010010010000111110100001101111101101110110011100000010110000011010001001000001110101101000001101111110101001011111100001000110111000010010101100000111110111100111111100110110001110010100011010111110010110110011110101001001001101100101111101111100110100000110100101011111010001110111000111100101000111011110100100011111110010000000001000100010111110100011001111111100111001111110101101011110100000100100000000111100100011111101110101100101001011100111111011101110101011001000000100010010001101110101010100111011010111001100100000100000111000101100010101100111111100000011000110011110000010';
@@ -189,13 +189,17 @@ async function render(variant, logo) {
        { font: `700 ${Math.round(mm(3.0))}px Almarai`, fill: MUTED, align: 'center' });
 
   const rx = W - SAFE;
+  let widest = 0;
+  const measure = (str, font) => { x.font = font; widest = Math.max(widest, x.measureText(str).width); };
   let cy2 = qrY + mm(4);
   text(x, 'للتسجيل والاستفسار', rx, cy2, { font: `700 ${Math.round(mm(3.0))}px Almarai`, fill: GOLD });
   cy2 += mm(7);
+  measure('+961 79 446 503', `800 ${Math.round(mm(6.2))}px Almarai`);
   text(x, '+961 79 446 503', rx, cy2,
        { font: `800 ${Math.round(mm(6.2))}px Almarai`, fill: NAVY, dir: 'ltr' });
   cy2 += mm(6.5);
   ['طرابلس · مخيم البداوي', 'بجانب مستشفى الهلال القديم', 'أمام مركز داوود للاشتراك'].forEach(line => {
+    measure(line, `500 ${Math.round(mm(ADDR_MM))}px "IBM Plex Sans Arabic"`);
     text(x, line, rx, cy2, { font: `500 ${Math.round(mm(ADDR_MM))}px "IBM Plex Sans Arabic"`, fill: INK });
     cy2 += mm(ADDR_LEAD);
   });
@@ -204,9 +208,11 @@ async function render(variant, logo) {
        { font: `600 ${Math.round(mm(3.1))}px "IBM Plex Sans Arabic"`, fill: NAVY, dir: 'ltr' });
 
   const limit = H - SAFE, bottom = Math.max(cy2, qrY + QS + mm(4.4));
-  const ok = bottom <= limit && y < qrY - mm(6);
+  const textLeft = rx - widest, qrRight = qrX + QS, gapX = textLeft - qrRight;
+  const ok = bottom <= limit && y < qrY - mm(6) && gapX >= mm(4);
   log(`${variant}: ${W}x${H}  logo ${(LOGO_W/MM).toFixed(0)}mm (src ${logo.naturalWidth}px)  QR ${(QS/MM).toFixed(0)}mm  module ${(moduleSize/MM).toFixed(2)}mm  addr ${ADDR_MM}mm`);
-  log(`  bodyEnds ${Math.round(y)}  zoneStarts ${Math.round(qrY - mm(6))}  bottom ${Math.round(bottom)}  limit ${limit}  => ${ok ? 'PASS' : 'FAIL: content crosses the safety margin'}`);
+  log(`  bodyEnds ${Math.round(y)}  zoneStarts ${Math.round(qrY - mm(6))}  bottom ${Math.round(bottom)}  limit ${limit}`);
+  log(`  widestText ${(widest/MM).toFixed(1)}mm  gap QR->text ${(gapX/MM).toFixed(1)}mm (min 4)  => ${ok ? 'PASS' : 'FAIL'}`);
 
   document.getElementById('out').appendChild(c);
   const res = await fetch('http://localhost:5174/save/card-' + variant + '.png',
