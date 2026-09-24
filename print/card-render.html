@@ -46,10 +46,10 @@ const GOLD_L = '#E6C475';
 const CREAM = '#F7F4EE', WHITE = '#FFFFFF', INK = '#14161C', MUTED = '#5B6375';
 
 /* ---- المقاسات التي تغيّرت بناءً على مراجعة المستخدم ---- */
-const QR_MM      = 36;    // كبُر على مراحل: 21 ثم 31 ثم 36
+const QR_MM      = 42;    // كبُر على مراحل: 21 ثم 31 ثم 36 ثم 42
 const ADDR_MM    = 4.0;
 const ADDR_LEAD  = 5.0;
-const BAND_MM    = 46;    // يضيق كلما كبر رمز QR
+const BAND_MM    = 42;    // يضيق كلما كبر رمز QR
 
 const QR_N = 33;
 const QR_BITS = '111111101110001101111101101111111100000101111001010100000101000001101110101101100011100111101011101101110100100111001100011001011101101110100001000100010001001011101100000101010010100101010001000001111111101010101010101010101111111000000001101111011101100100000000001110101001001100101010111100111011100011110000010000101011001101100110110001000111111100110101110001001011101001100101101000001110001000100101000001100011110010010100111011010101000110011001001001001001101011000100001010011110110010110010010010000111110100001101111101101110110011100000010110000011010001001000001110101101000001101111110101001011111100001000110111000010010101100000111110111100111111100110110001110010100011010111110010110110011110101001001001101100101111101111100110100000110100101011111010001110111000111100101000111011110100100011111110010000000001000100010111110100011001111111100111001111110101101011110100000100100000000111100100011111101110101100101001011100111111011101110101011001000000100010010001101110101010100111011010111001100100000100000111000101100010101100111111100000011000110011110000010';
@@ -60,8 +60,9 @@ function roundRect(ctx, X, Y, RW, RH, r) { ctx.beginPath(); ctx.roundRect(X, Y, 
 
 /** يرسم رمز QR من مصفوفة الوحدات: أحدّ من تصغير صورة جاهزة */
 function drawQR(ctx, x, y, sizePx) {
+  // بلا خلفية بيضاء: خلفية البطاقة الكريمية نفسها هي الهامش الهادئ.
+  // التباين بين الكحلي والكريمي عالٍ جداً, لكن الهامش الهادئ يبقى إلزامياً.
   const quiet = 4, total = QR_N + quiet * 2, m = sizePx / total;
-  ctx.fillStyle = WHITE; ctx.fillRect(x, y, sizePx, sizePx);
   ctx.fillStyle = NAVY_D;
   for (let r = 0; r < QR_N; r++) for (let c = 0; c < QR_N; c++) {
     if (QR_BITS[r * QR_N + c] === '1') {
@@ -102,11 +103,11 @@ async function render(variant, logo) {
   x.fillStyle = GOLD; x.fillRect(0, BAND - Math.round(mm(0.8)), W, Math.round(mm(0.8)));
 
   // ---------------- logo on a light plate (brand rule) ----------------
-  const LOGO_W = Math.round(mm(21));
+  const LOGO_W = Math.round(mm(19));
   const LOGO_H = Math.round(LOGO_W * logo.naturalHeight / logo.naturalWidth);
-  const PAD = Math.round(mm(3.2));
+  const PAD = Math.round(mm(3.0));
   const PW = LOGO_W + PAD * 2, PH = LOGO_H + PAD * 2;
-  const PX = Math.round((W - PW) / 2), PY = Math.round(mm(5.5));
+  const PX = Math.round((W - PW) / 2), PY = Math.round(mm(4.5));
   x.save();
   x.shadowColor = 'rgba(0,0,0,.30)'; x.shadowBlur = mm(3); x.shadowOffsetY = mm(1);
   x.fillStyle = WHITE; roundRect(x, PX, PY, PW, PH, mm(3)); x.fill();
@@ -115,11 +116,11 @@ async function render(variant, logo) {
   roundRect(x, PX, PY, PW, PH, mm(3)); x.stroke();
   x.drawImage(logo, PX + PAD, PY + PAD, LOGO_W, LOGO_H);
 
-  text(x, 'مع النخبة… التميّز ليس خياراً بل عادة', W / 2, PY + PH + mm(6.5),
+  text(x, 'مع النخبة… التميّز ليس خياراً بل عادة', W / 2, PY + PH + mm(6),
        { font: `700 ${Math.round(mm(3.9))}px Almarai`, fill: GOLD_L, align: 'center' });
 
   // ---------------- body ----------------
-  let y = BAND + mm(8);
+  let y = BAND + mm(7);
   text(x, 'من الصف الخامس حتى البكالوريا', W / 2, y,
        { font: `800 ${Math.round(mm(4.9))}px Almarai`, fill: NAVY, align: 'center' });
   y += mm(6);
@@ -131,7 +132,7 @@ async function render(variant, logo) {
   if (variant === 'offers') {
     const rows = [['مجاناً', 'الدورة المجانية للبريفيه'], ['20%', 'خصم للطلاب الجدد']];
     const rowH = Math.round(mm(10)), gap = Math.round(mm(2.2));
-    const boxH = rows.length * rowH + (rows.length - 1) * gap + mm(8);
+    const boxH = rows.length * rowH + (rows.length - 1) * gap + mm(7);
     x.fillStyle = 'rgba(214,167,61,.12)'; roundRect(x, boxX, y, boxW, boxH, mm(3)); x.fill();
     x.strokeStyle = 'rgba(214,167,61,.5)'; x.lineWidth = mm(0.3);
     roundRect(x, boxX, y, boxW, boxH, mm(3)); x.stroke();
