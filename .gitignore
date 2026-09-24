@@ -14,3 +14,7 @@ desktop.ini
 
 # إعدادات محلية خاصة بجهازك
 .claude/settings.local.json
+
+# صور شخصية للنشر, ليست جزءاً من المشروع
+marketing/
+linkedin-*
